@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<style>
+  body {
+    background-color: #f1f1f1;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    width: 400px;
+    padding: 20px;
+    background-color: #007bff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .clock-container {
+    position: relative;
+    width: 300px; /* Increased width */
+    height: 300px; /* Increased height */
+    border-radius: 50%;
+    background-color: #007bff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
+  }
+
+  .clock {
+    width: 250px; /* Increased width */
+    height: 250px; /* Increased height */
+    border-radius: 50%;
+    background-color: #fff;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hour-hand,
+  .minute-hand,
+  .second-hand {
+    position: absolute;
+    background-color: #007bff;
+    transform-origin: 50% 100%;
+  }
+
+  .hour-hand {
+    width: 8px;
+    height: 70px;
+  }
+
+  .minute-hand {
+    width: 6px;
+    height: 90px;
+  }
+
+  .second-hand {
+    width: 4px;
+    height: 100px;
+    background-color: red;
+  }
+
+  .time-display {
+    color: #fff;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .elapsed-time {
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .option-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .option-button {
+    background-color: #fff;
+    border: none;
+    color: #007bff;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    margin: 0 10px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="time-display" id="current-time">Current Time: 00:00:00</div>
+  <div class="elapsed-time" id="elapsed-time">Elapsed Time: 00:00:00</div>
+  <div class="clock-container">
+    <div class="clock">
+      <div class="hour-hand"></div>
+      <div class="minute-hand"></div>
+      <div class="second-hand"></div>
+    </div>
+  </div>
+  <div class="option-container">
+    <button class="option-button" onclick="startStop()">Start/Stop</button>
+    <button class="option-button" onclick="reset()">Reset</button>
+  </div>
+</div>
+
+<script>
+  const hourHand = document.querySelector('.hour-hand');
+  const minuteHand = document.querySelector('.minute-hand');
+  const secondHand = document.querySelector('.second-hand');
+  const currentTimeDisplay = document.getElementById('current-time');
+  const elapsedTimeDisplay = document.getElementById('elapsed-time');
+
+  let isRunning = false;
+  let seconds = 0;
+  let minutes = 0;
+  let hours = 0;
+  let startTime = 0;
+  let timer;
+
+  function startStop() {
+    if (isRunning) {
+      clearInterval(timer);
+      isRunning = false;
+    } else {
+      startTime = Date.now();
+      timer = setInterval(updateClock, 1000);
+      isRunning = true;
+    }
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const hoursNow = now.getHours();
+    const minutesNow = now.getMinutes();
+    const secondsNow = now.getSeconds();
+
+    currentTimeDisplay.innerText = 'Current Time: ' + formatTime(hoursNow) + ':' + formatTime(minutesNow) + ':' + formatTime(secondsNow);
+
+    const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+    const elapsedHours = Math.floor(elapsedTime / 3600);
+    const elapsedMinutes = Math.floor((elapsedTime % 3600) / 60);
+    const elapsedSeconds = elapsedTime % 60;
+
+    elapsedTimeDisplay.innerText = 'Elapsed Time: ' + formatTime(elapsedHours) + ':' + formatTime(elapsedMinutes) + ':' + formatTime(elapsedSeconds);
+
+    seconds++;
+    if (seconds === 60) {
+      seconds = 0;
+      minutes++;
+      if (minutes === 60) {
+        minutes = 0;
+        hours++;
+        if (hours === 12) {
+          hours = 0;
+        }
+      }
+    }
+
+    const secondDegrees = (seconds / 60) * 360;
+    const minuteDegrees = ((minutes * 60 + seconds) / 3600) * 360;
+    const hourDegrees = ((hours * 3600 + minutes * 60 + seconds) / 43200) * 360;
+
+    secondHand.style.transform = `rotate(${secondDegrees}deg)`;
+    minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
+    hourHand.style.transform = `rotate(${hourDegrees}deg)`;
+  }
+
+  function reset() {
+    clearInterval(timer);
+    isRunning = false;
+    seconds = 0;
+    minutes = 0;
+    hours = 0;
+    startTime = 0;
+    secondHand.style.transform = `rotate(0deg)`;
+    minuteHand.style.transform = `rotate(0deg)`;
+    hourHand.style.transform = `rotate(0deg)`;
+    currentTimeDisplay.innerText = 'Current Time: 00:00:00';
+    elapsedTimeDisplay.innerText = 'Elapsed Time: 00:00:00';
+  }
+
+  function formatTime(time) {
+    return time < 10 ? '0' + time : time;
+  }
+</script>
+</body>
+</html>
